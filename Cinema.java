@@ -16,16 +16,16 @@ public class Cinema {
 
             switch (choice) {
                 case 1:
-                    buyTicket();
+                    buy_ticket();
                     break;
                 case 2:
-                    cancelTicket();
+                    cancel_ticket();
                     break;
                 case 3:
-                SeatsView();
+                    print_seating_area();
                     break;
                 case 4:
-                    firstAvailable();
+                find_first_available();
                     break;
                 case 5:
                     // printTicketsInfo();
@@ -59,7 +59,7 @@ public class Cinema {
     private static int menu() {
         int choice = 0;
         boolean validInput = false;
-        SeatsView();
+        print_seating_area();
         while (!validInput) {
             System.out.println("Please select an option:");
             System.out.println("1. Buy a ticket");
@@ -90,7 +90,7 @@ public class Cinema {
         return choice;
     }
 
-    private static void SeatsView() {
+    private static void print_seating_area() {
         System.out.println("\t");
         System.out.println("\t");
         System.out.println("\t\tCurrent Seating Plan:");
@@ -127,7 +127,7 @@ public class Cinema {
         System.out.println("\nO = Available, X = Sold");
     }
 
-    private static void buyTicket() {
+    private static void buy_ticket() {
         System.out.println("Buy a Ticket");
         System.out.println("------------");
 
@@ -195,7 +195,7 @@ public class Cinema {
         scanner.nextLine();
     }
 
-    private static void cancelTicket() {
+    private static void cancel_ticket() {
         System.out.println("Cancel a Ticket");
         System.out.println("---------------");
 
@@ -246,15 +246,15 @@ public class Cinema {
         scanner.nextLine();
     }
 
-    private static void firstAvailable() {
+    private static void find_first_available() {
         System.out.println("Find First Available Seat");
         System.out.println("-------------------------");
-    
+
         boolean found = false;
         for (int row = 0; row < 3; row++) {
             for (int seat = 0; seat < 16; seat++) {
                 if (seatsPlan[row][seat] == 0) {
-                    System.out.println("The first available seat is in Row - "+ (row + 1)+ " Seat - "+ (seat + 1));
+                    System.out.println("The first available seat is in Row - " + (row + 1) + " Seat - " + (seat + 1));
                     found = true;
                     return;
                 }
