@@ -1,9 +1,12 @@
+import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Cinema {
     private static Scanner scanner = new Scanner(System.in);
     private static int[][] seatsPlan = new int[3][16];
+    private static Ticket[][] tickets = new Ticket[3][16];
+    private static ArrayList<Ticket> ticketList = new ArrayList<>();
 
     public static void main(String[] args) {
         System.out.println("Welcome to The London Lumiere");
@@ -25,16 +28,16 @@ public class Cinema {
                     print_seating_area();
                     break;
                 case 4:
-                find_first_available();
+                    find_first_available();
                     break;
                 case 5:
-                    // printTicketsInfo();
+                    printTicketsInfo();
                     break;
                 case 6:
-                    // searchTicket();
+                    searchTicket();
                     break;
                 case 7:
-                    // sortTickets();
+                    sortTickets();
                     break;
                 case 8:
                     running = false;
@@ -131,7 +134,7 @@ public class Cinema {
         System.out.println("Buy a Ticket");
         System.out.println("------------");
 
-        // get Row
+        // Get Row
         int row = 0;
         boolean validRow = false;
         while (!validRow) {
@@ -169,10 +172,17 @@ public class Cinema {
 
         // Check if seat is available
         if (seatsPlan[row - 1][seat - 1] == 0) {
-            seatsPlan[row - 1][seat - 1] = 1; // Mark seat as sold
-            System.out.println("Ticket purchased :- row " + row + ", Seat " + seat);
+            // Get person information
+            scanner.nextLine(); // Consume newline
+            System.out.print("Enter name: ");
+            String name = scanner.nextLine();
+            System.out.print("Enter surname: ");
+            String surname = scanner.nextLine();
+            System.out.print("Enter email: ");
+            String email = scanner.nextLine();
 
-            // Display price
+            Person person = new Person(name, surname, email);
+
             double price;
             switch (row) {
                 case 1:
@@ -187,19 +197,24 @@ public class Cinema {
                 default:
                     price = 0.0;
             }
-            System.out.printf("Price: £%.2f", price);
-        } else {
-            System.out.println("Seat not available! choose another seat.");
-        }
 
-        scanner.nextLine();
+            Ticket ticket = new Ticket(row, seat, price, person);
+            tickets[row - 1][seat - 1] = ticket;
+            ticketList.add(ticket);
+            seatsPlan[row - 1][seat - 1] = 1; // Mark seat as sold
+
+            System.out.println("Ticket purchased :- row " + row + ", Seat " + seat);
+            System.out.printf("Price: £%.2f%n", price);
+        } else {
+            System.out.println("Seat not available! Choose another seat.");
+        }
     }
 
     private static void cancel_ticket() {
         System.out.println("Cancel a Ticket");
         System.out.println("---------------");
 
-        // row
+        // Row
         int row = 0;
         boolean validRow = false;
         while (!validRow) {
@@ -217,7 +232,7 @@ public class Cinema {
             }
         }
 
-        // seat number
+        // Seat number
         int seat = 0;
         boolean validSeat = false;
         while (!validSeat) {
@@ -235,15 +250,16 @@ public class Cinema {
             }
         }
 
-        // check if seeat is sold and cancel it
+        // Check if seat is sold and cancel it
         if (seatsPlan[row - 1][seat - 1] == 1) {
-            seatsPlan[row - 1][seat - 1] = 0; // mark as available
+            seatsPlan[row - 1][seat - 1] = 0; // Mark as available
+            Ticket ticket = tickets[row - 1][seat - 1];
+            tickets[row - 1][seat - 1] = null; // Remove the ticket
+            ticketList.remove(ticket); // Remove from list
             System.out.println("Ticket cancelled.");
         } else {
             System.out.println("This seat is currently not purchased. Cannot Cancel!");
         }
-
-        scanner.nextLine();
     }
 
     private static void find_first_available() {
@@ -262,6 +278,84 @@ public class Cinema {
         }
         if (!found) {
             System.out.println("There are no available seats. All the seats are occupied!");
+        }
+    }
+
+    private static void printTicketsInfo() {
+        System.out.println("Tickets Information");
+        System.out.println("-------------------");
+
+        double totalPrice = 0.0;
+        if (ticketList.isEmpty()) {
+            System.out.println("No tickets have been sold.");
+        } else {
+            for (Ticket ticket : ticketList) {
+                ticket.printTicketInfo();
+                totalPrice += ticket.getPrice();
+                System.out.println();
+            }
+            System.out.printf("Total price of tickets sold: £%.2f%n", totalPrice);
+        }
+    }
+
+    private static void searchTicket() {
+        System.out.println("Search for a Ticket");
+        System.out.println("-------------------");
+
+        int row = 0;
+        boolean validRow = false;
+        while (!validRow) {
+            System.out.print("Enter row number (1-3): ");
+            try {
+                row = scanner.nextInt();
+                if (row >= 1 && row <= 3) {
+                    validRow = true;
+                } else {
+                    System.out.println("Enter a number between 1 and 3.");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Enter a valid number.");
+                scanner.next();
+            }
+        }
+
+        int seat = 0;
+        boolean validSeat = false;
+        while (!validSeat) {
+            System.out.print("Enter seat number (1-16): ");
+            try {
+                seat = scanner.nextInt();
+                if (seat >= 1 && seat <= 16) {
+                    validSeat = true;
+                } else {
+                    System.out.println("Enter a number between 1 and 16.");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Enter a valid number.");
+                scanner.next();
+            }
+        }
+
+        Ticket ticket = tickets[row - 1][seat - 1];
+        if (ticket != null) {
+            ticket.printTicketInfo();
+        } else {
+            System.out.println("This seat is available.");
+        }
+    }
+
+    private static void sortTickets() {
+        System.out.println("Sort Tickets by Price");
+        System.out.println("---------------------");
+
+        if (ticketList.isEmpty()) {
+            System.out.println("No tickets have been sold.");
+        } else {
+            ticketList.sort((t1, t2) -> Double.compare(t1.getPrice(), t2.getPrice()));
+            for (Ticket ticket : ticketList) {
+                ticket.printTicketInfo();
+                System.out.println();
+            }
         }
     }
 }
